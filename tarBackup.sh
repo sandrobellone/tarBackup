@@ -78,7 +78,6 @@ NUMERO_BACKUP_COMPLETI=`ls -l $DESTINAZIONE|grep "_full." 2> /dev/null |wc -l`
 #idx=`expr index "$str" ":"`
 NUMERO_BACKUP_INC=`ls -rl $DESTINAZIONE/$NOME_BACKUP*{full,inc}* 2> /dev/null | grep -m 1 -n "_full."|cut -d':' -f1`
 if [ -z $NUMERO_BACKUP_INC ]; then
-  echo imposto idx a 0
    NUMERO_BACKUP_INC=0
 else
   ((NUMERO_BACKUP_INC -= 1))
