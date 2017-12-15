@@ -77,15 +77,15 @@ function _backup
   NOME_CARTELLA_ORIG=`echo $ORIG| tr '/' '\n'|tail -n1`
   if [ $DEBUG -eq 1 ]; then
     _stampa -e '\n-->'/bin/tar -C $ORIG/..\
-           --listed-incremental=$NOME_FILE_LISTA\
+           --listed-incremental=$NOME_ULTIMO_FILE_LISTA\
            -czf $1 $NOME_CARTELLA_ORIG\
 		   --exclude=$NOME_BACK*{_full,_inc,_list}*
   fi
   /bin/tar -C $ORIG/..\
-           --listed-incremental=$NOME_FILE_LISTA\
+           --listed-incremental=$NOME_ULTIMO_FILE_LISTA\
            -czf $1 $NOME_CARTELLA_ORIG\
 		   --exclude=$NOME_BACK*{_full,_inc,_list}*
-  cp $NOME_FILE_LISTA $NOME_ULTIMO_FILE_LISTA
+  cp $NOME_ULTIMO_FILE_LISTA $NOME_FILE_LISTA
 }
 
 function _incrementale
@@ -95,7 +95,7 @@ function _incrementale
 
 function _completo
 {
-  rm -f $NOME_FILE_LISTA
+  rm -f $NOME_ULTIMO_FILE_LISTA
   _backup $NOME_FILE_COMPL
 }
 
