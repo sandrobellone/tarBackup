@@ -1,6 +1,6 @@
 #!/bin/bash
 #tarBackup.sh
-#versione 0.10 del 02 Ottobre 2017
+#versione 0.02 del 16 Dicembre 2017
 #Copyright 2017 Sandro Bellone
 #Rilasciato secondo i termini della Licenza Pubblica Generica GNU
 #Esegue il backup di $ORIG in $DEST
