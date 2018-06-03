@@ -1,7 +1,7 @@
 #!/bin/bash
 #tarBackup.sh
-#versione 0.02 del 16 Dicembre 2017
-#Copyright 2017 Sandro Bellone
+#versione 0.02 del 3 Giugno 2018
+#Copyright 2017 2018 Sandro Bellone
 #Rilasciato secondo i termini della Licenza Pubblica Generica GNU
 #Esegue il backup di $ORIG in $DEST
 
@@ -24,10 +24,12 @@ DEBUG=0
 LOGGING=0
 DATA=`date +%y%m%d_%H%M%S`
 NOME_BACK=""
+DIM_MAX_LOG_FILE=100 #Limite dimensione log file, in kb
+LOG_FILE=tarBackup_log.txt
 
 #Funzione stampa
 function _stampa {
-  if [ $LOGGING -eq 1 ]; then echo $@ | tee -a $MY_HOME/tarBackup_log.txt
+  if [ $LOGGING -eq 1 ]; then echo $@ | tee -a $MY_HOME/$LOG_FILE
   else echo $@
   fi
 }
@@ -48,10 +50,10 @@ function _esci {
 function _check_exist {
   _stampa -n "controllo esistenza cartelle  ... "
   if [ ! -d "$ORIG" ]; then
-    _stampa 'origine non esiste'
+    _stampa 'Cartella origine non esiste'
     _esci 1
   elif [ ! -d "$DEST" ]; then
-    _stampa 'destinazione non esiste'
+    _stampa 'Cartella destinazione non esiste'
     _esci 1
   fi
   _stampa 'ok'
@@ -97,20 +99,20 @@ function _completo {
 }
 
 function _controlla_log_file {
-    if [ ! -e "$MY_HOME/tarBackup_log.txt" ]; then touch $MY_HOME/tarBackup_log.txt; fi
-    DIM_LOG_FILE=`du $MY_HOME/tarBackup_log.txt |cut -f 1`
+    if [ ! -e "$MY_HOME/$LOG_FILE" ]; then touch $MY_HOME/$LOG_FILE; fi
+    DIM_LOG_FILE=`du $MY_HOME/$LOG_FILE |cut -f 1`
     if [ $DEBUG -eq 1 ]; then
       _stampa "-->Dimensione log file: $DIM_LOG_FILE kb"
     fi
-    if [ $DIM_LOG_FILE -gt 8  ]; then
+    if [ $DIM_LOG_FILE -gt $DIM_MAX_LOG_FILE  ]; then
       _stampa "Compressione log file..."
       NUM_LOG_FILE=`ls -c1 $MY_HOME/tarBackup_log*.tar.gz 2> /dev/null | wc -l`
       if [ $DEBUG -eq 1 ]; then
           _stampa "-->NUM_LOG_FILE=: $NUM_LOG_FILE"
       fi
-      /bin/tar -C "$MY_HOME" -czf "$MY_HOME/tarBackup_log_$NUM_LOG_FILE.tar.gz" tarBackup_log.txt
+      /bin/tar -C "$MY_HOME" -czf "$MY_HOME/tarBackup_log_$NUM_LOG_FILE.tar.gz" $LOG_FILE
       if [ $? -eq 0 ]; then
-         rm -f $MY_HOME/tarBackup_log.txt
+         rm -f $MY_HOME/$LOG_FILE
       fi
     fi
 }
@@ -132,8 +134,8 @@ while getopts "hdln:" opt; do
 	l)
 	  echo "-->Logging attivato"
 	  LOGGING=1
-	  echo "---------------------------" >> $MY_HOME/tarBackup_log.txt
-	  echo "-->" inizio Logging - `date` >> $MY_HOME/tarBackup_log.txt
+	  echo "---------------------------" >> $MY_HOME/$LOG_FILE
+	  echo "-->" inizio Logging - `date` >> $MY_HOME/$LOG_FILE
 	  _controlla_log_file
           ;;
     \?)
@@ -154,8 +156,6 @@ _check_exist
 if [ $DEBUG -eq 1 ]; then
   _stampa "-->MY_HOME="$MY_HOME
   _stampa "-->NOME_BACK="$NOME_BACK
-#  _stampa "-->NOME_FILE_COMPL"=$NOME_FILE_COMPL
-#  _stampa "-->NOME_FILE_INC"=$NOME_FILE_INC
 fi
 _controllo_variazioni
 NBACK_COMPL=`ls -X1 $DEST/$NOME_BACK* 2> /dev/null |grep "_full."|wc -l`
